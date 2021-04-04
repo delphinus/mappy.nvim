@@ -123,13 +123,15 @@ describe('mapper', function()
     describe('with a function', function()
 
       it('calls nvim_set_keymap() and enable to call it', function()
-        local func_str
+        local cmd
         t = Tester.new{
-          set = function(...) func_str = (select(3, ...)) end,
+          set = function(...)
+            cmd = (select(3, ...)):match'^<Cmd>(.*)<CR>$'
+          end,
         }
         local foo
         t.m.nnoremap('<C-g>', function() foo = 'bar' end)
-        vim.cmd(func_str)
+        vim.cmd(cmd)
         assert.are.same('bar', foo)
       end)
     end)

@@ -134,7 +134,7 @@ function Map:__rhs(candidate)
     return candidate
   end
   self.funcs[#self.funcs + 1] = candidate
-  return ('lua %s[%d]()'):format(self.funcs_var_name, #self.funcs)
+  return ('<Cmd>lua %s[%d]()<CR>'):format(self.funcs_var_name, #self.funcs)
 end
 
 return Map.new()
