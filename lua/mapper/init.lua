@@ -63,7 +63,7 @@ function Map:__bind(noremap)
     local lhs = ''
     local rhs = ''
     if select('#', ...) == 4 then
-      opts, modes, lhs, rhs = select(1, ...)
+      modes, opts, lhs, rhs = select(1, ...)
       vim.validate{
         opts = {opts, 'table'},
         modes = {modes, function(v)

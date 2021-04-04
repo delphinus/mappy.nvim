@@ -166,7 +166,7 @@ describe('mapper', function()
 
       describe('and no buffer', function()
         it('calls nvim_set_keymap() with valid arguments', function()
-          t.m.bind({'expr'}, 'nvc', '<C-g>', [[3 + 3]])
+          t.m.bind('nvc', {'expr'}, '<C-g>', [[3 + 3]])
           assert.are.same({
             global = {
               {'n', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
@@ -180,7 +180,7 @@ describe('mapper', function()
 
       describe('and buffer', function()
         it('calls nvim_buf_set_keymap() with valid arguments', function()
-          t.m.bind({'buffer', 'expr'}, 'nvc', '<C-g>', [[3 + 3]])
+          t.m.bind('nvc', {'buffer', 'expr'}, '<C-g>', [[3 + 3]])
           assert.are.same({
             global = {},
             buf = {
@@ -204,7 +204,7 @@ describe('mapper', function()
     describe('when lhs is a table', function()
 
       it('calls nvim_set_keymap() with valid arguments', function()
-        t.m.bind({'expr'}, 'nvc', {'<C-g>', '<C-l>'}, [[3 + 3]])
+        t.m.bind('nvc', {'expr'}, {'<C-g>', '<C-l>'}, [[3 + 3]])
         assert.are.same({
           global = {
               {'n', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
@@ -227,7 +227,7 @@ describe('mapper', function()
       describe('and buffer', function()
 
         it('calls nvim_buf_set_keymap() with valid arguments', function()
-          t.m.rbind({'buffer', 'expr'}, 'nvc', '<C-g>', [[3 + 3]])
+          t.m.rbind('nvc', {'buffer', 'expr'}, '<C-g>', [[3 + 3]])
           assert.are.same({
             global = {},
             buf = {
