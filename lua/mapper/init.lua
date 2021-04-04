@@ -64,7 +64,9 @@ function Map:__bind(noremap)
         modes = {modes, function(v)
           return type(v) == 'string' and v:match'^[nvxsoilct!]+$'
         end, 'mode string'},
-        lhs = {lhs, 'string'},
+        lhs = {lhs, function(v)
+          return type(v) == 'string' or type(v) == 'table'
+        end},
         rhs = {rhs, function(v)
           return type(v) == 'string' or type(v) == 'function'
         end, 'string or function'},
@@ -73,7 +75,9 @@ function Map:__bind(noremap)
       modes, lhs, rhs = select(1, ...)
       vim.validate{
         modes = {modes, 'string'},
-        lhs = {lhs, 'string'},
+        lhs = {lhs, function(v)
+          return type(v) == 'string' or type(v) == 'table'
+        end},
         rhs = {rhs, function(v)
           return type(v) == 'string' or type(v) == 'function'
         end, 'string or function'},
@@ -81,12 +85,15 @@ function Map:__bind(noremap)
     else
       error'bind, rbind need (mode, lhs, rhs) atleast'
     end
-    if modes == '' then
-      this:__map('', noremap)(opts, lhs, rhs)
-      return
-    end
-    for m in modes:gmatch'.' do
-      this:__map(m, noremap)(opts, lhs, rhs)
+    local lhss = type(lhs) == 'string' and {lhs} or lhs
+    for _, l in ipairs(lhss) do
+      if modes == '' then
+        this:__map('', noremap)(opts, l, rhs)
+      else
+        for m in modes:gmatch'.' do
+          this:__map(m, noremap)(opts, l, rhs)
+        end
+      end
     end
   end
 end

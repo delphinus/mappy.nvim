@@ -198,6 +198,24 @@ describe('mapper', function()
         assert.has.errors(function() t.m.bind({}, 'n', '<C-g>', [[echo 'hoge']], {}) end)
       end)
     end)
+
+    describe('when lhs is a table', function()
+
+      it('calls nvim_set_keymap() with valid arguments', function()
+        t.m.bind({'expr'}, 'nvc', {'<C-g>', '<C-l>'}, [[3 + 3]])
+        assert.are.same({
+          global = {
+              {'n', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
+              {'v', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
+              {'c', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
+              {'n', '<C-l>', [[3 + 3]], {expr = true, noremap = true}},
+              {'v', '<C-l>', [[3 + 3]], {expr = true, noremap = true}},
+              {'c', '<C-l>', [[3 + 3]], {expr = true, noremap = true}},
+          },
+          buf = {},
+        }, t.results)
+      end)
+    end)
   end)
 
   describe('rbind()', function()
