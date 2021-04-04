@@ -240,4 +240,19 @@ describe('mapper', function()
       end)
     end)
   end)
+
+  describe('add_buffer_maps()', function()
+
+    it('calls nvim_buf_set_keymap() always', function()
+      t.m.add_buffer_maps(function()
+        t.m.inoremap({'expr'}, '<C-g>', [[3 + 3]])
+      end)
+      assert.are.same({
+        global = {},
+        buf = {
+          {0, 'i', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
+        },
+      }, t.results)
+    end)
+  end)
 end)

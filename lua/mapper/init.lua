@@ -5,6 +5,7 @@ local Map = {}
 function Map.new(map_setter)
   local self = {
     Map = Map,
+    buffer = false,
     funcs = {},
     funcs_var_name = ('__map_funcs_%d__'):format(vim.loop.now()),
     map_setter = map_setter or nvim_map_setter,
@@ -42,6 +43,8 @@ function Map:_index(key)
     return self:__bind(true)
   elseif key == 'rbind' then
     return self:__bind()
+  elseif key == 'add_buffer_maps' then
+    return self:__add_buffer_maps()
   end
   local m = self.map_methods[key]
   if m then
@@ -120,7 +123,7 @@ function Map:__map(mode, noremap)
     if noremap then
        opts.noremap = noremap
     end
-    if opts.buffer then
+    if this.buffer or opts.buffer then
       opts.buffer = nil
       this.map_setter.buf_set(0, mode, lhs, rhs, opts)
     else
@@ -135,6 +138,18 @@ function Map:__rhs(candidate)
   end
   self.funcs[#self.funcs + 1] = candidate
   return ('<Cmd>lua %s[%d]()<CR>'):format(self.funcs_var_name, #self.funcs)
+end
+
+function Map:__add_buffer_maps()
+  local this = self
+  return function(f)
+    vim.validate{
+      f = {f, 'function'},
+    }
+    this.buffer = true
+    f()
+    this.buffer = false
+  end
 end
 
 return Map.new()
