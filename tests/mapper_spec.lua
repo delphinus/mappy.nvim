@@ -4,11 +4,13 @@ local Tester = {}
 
 function Tester.new(map_setter)
   local self = setmetatable({
-    results = {global = {}, buf = {}},
+    results = {global = {}, buf = {}, del = {}, buf_del = {}},
   }, {__index = Tester})
   map_setter = map_setter or {
     set = function(...) self:save({}, ...) end,
     buf_set = function(...) self:save({buf = true}, ...) end,
+    del = function(...) self:save({del = true}, ...) end,
+    buf_del = function(...) self:save({del = true, buf = true}, ...) end,
   }
   self.m = mapper.Map.new(map_setter)
   return self
@@ -20,7 +22,12 @@ function Tester:save(opts, ...)
   for n = 1, select('#', ...) do
     table.insert(r, (select(n, ...)) or 'nil')
   end
-  table.insert(self.results[opts.buf and 'buf' or 'global'], r)
+  local results
+  if opts.buf and opts.del then results = self.results.buf_del
+  elseif opts.buf then results = self.results.buf
+  elseif opts.del then results = self.results.del
+  else results = self.results.global end
+  table.insert(results, r)
 end
 
 describe('mapper', function()
@@ -43,6 +50,8 @@ describe('mapper', function()
                   {'', '<C-j>', [[<Cmd>echo 'hoge'<CR>]], {}},
                },
                buf = {},
+               del = {},
+               buf_del = {},
             }, t.results)
           end)
         end)
@@ -56,6 +65,8 @@ describe('mapper', function()
                   {'', '<C-j>', [[<Cmd>echo 'hoge'<CR>]], {noremap = true}},
                },
                buf = {},
+               del = {},
+               buf_del = {},
             }, t.results)
           end)
         end)
@@ -72,6 +83,8 @@ describe('mapper', function()
                   {'n', '<C-j>', [[<Cmd>echo 'hoge'<CR>]], {}},
                },
                buf = {},
+               del = {},
+               buf_del = {},
             }, t.results)
           end)
         end)
@@ -85,6 +98,8 @@ describe('mapper', function()
                   {'n', '<C-j>', [[<Cmd>echo 'hoge'<CR>]], {noremap = true}},
                },
                buf = {},
+               del = {},
+               buf_del = {},
             }, t.results)
           end)
         end)
@@ -102,6 +117,8 @@ describe('mapper', function()
                 {'n', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
              },
              buf = {},
+             del = {},
+             buf_del = {},
           }, t.results)
         end)
       end)
@@ -115,6 +132,8 @@ describe('mapper', function()
              buf = {
                 {0, 'n', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
              },
+             del = {},
+             buf_del = {},
           }, t.results)
         end)
       end)
@@ -158,6 +177,8 @@ describe('mapper', function()
             {'c', '<C-g>', [[<Cmd>echo 'hoge'<CR>]], {noremap = true}},
           },
           buf = {},
+          del = {},
+          buf_del = {},
         }, t.results)
       end)
     end)
@@ -174,6 +195,8 @@ describe('mapper', function()
               {'c', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
             },
             buf = {},
+            del = {},
+            buf_del = {},
           }, t.results)
         end)
       end)
@@ -188,6 +211,8 @@ describe('mapper', function()
               {0, 'v', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
               {0, 'c', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
             },
+            del = {},
+            buf_del = {},
           }, t.results)
         end)
       end)
@@ -215,6 +240,8 @@ describe('mapper', function()
               {'c', '<C-l>', [[3 + 3]], {expr = true, noremap = true}},
           },
           buf = {},
+          del = {},
+          buf_del = {},
         }, t.results)
       end)
     end)
@@ -235,6 +262,8 @@ describe('mapper', function()
               {0, 'v', '<C-g>', [[3 + 3]], {expr = true}},
               {0, 'c', '<C-g>', [[3 + 3]], {expr = true}},
             },
+            del = {},
+            buf_del = {},
           }, t.results)
         end)
       end)
@@ -252,7 +281,50 @@ describe('mapper', function()
         buf = {
           {0, 'i', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
         },
+        del = {},
+        buf_del = {},
       }, t.results)
+    end)
+  end)
+
+  describe('unmap()', function()
+
+    describe('when no buffer', function()
+
+      it('unmaps existent maps', function()
+        t.m.nnoremap('<C-g>', [[<Cmd>echo 'hoge'<CR>]])
+        t.m.nunmap('<C-g>')
+        assert.are.same({
+          global = {
+            {'n', '<C-g>', [[<Cmd>echo 'hoge'<CR>]], {noremap = true}},
+          },
+          buf = {},
+          del = {
+            {'n', '<C-g>'},
+          },
+          buf_del = {},
+        }, t.results)
+      end)
+    end)
+
+    describe('when buffer', function()
+
+      it('unmaps existent maps', function()
+        t.m.noremap({'buffer'}, '<C-g>', [[<Cmd>echo 'hoge'<CR>]])
+        t.m.unmap({'buffer'}, '<C-g>')
+        assert.are.same({
+          global = {},
+          buf = {
+            {0, '', '<C-g>', [[<Cmd>echo 'hoge'<CR>]], {noremap = true}},
+          },
+          del = {},
+          buf_del = {
+            {0, 'n', '<C-g>'},
+            {0, 'v', '<C-g>'},
+            {0, 'o', '<C-g>'},
+          },
+        }, t.results)
+      end)
     end)
   end)
 end)
