@@ -19,6 +19,7 @@ function Map.new(map_setter)
       imap = {mode = 'i', noremap = false},
       lmap = {mode = 'l', noremap = false},
       cmap = {mode = 'c', noremap = false},
+      tmap = {mode = 't', noremap = false},
       map_ = {mode = '!', noremap = false},
       noremap = {mode = '', noremap = true},
       nnoremap = {mode = 'n', noremap = true},
@@ -29,6 +30,7 @@ function Map.new(map_setter)
       inoremap = {mode = 'i', noremap = true},
       lnoremap = {mode = 'l', noremap = true},
       cnoremap = {mode = 'c', noremap = true},
+      tnoremap = {mode = 't', noremap = true},
       noremap_ = {mode = '!', noremap = true},
     },
   }
