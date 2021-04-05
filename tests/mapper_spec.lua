@@ -272,18 +272,33 @@ describe('mapper', function()
 
   describe('add_buffer_maps()', function()
 
-    it('calls nvim_buf_set_keymap() always', function()
-      t.m.add_buffer_maps(function()
-        t.m.inoremap({'expr'}, '<C-g>', [[3 + 3]])
+    describe('when successfully done', function()
+
+      it('calls nvim_buf_set_keymap() always', function()
+        t.m.add_buffer_maps(function()
+          t.m.inoremap({'expr'}, '<C-g>', [[3 + 3]])
+        end)
+        assert.are.same({
+          global = {},
+          buf = {
+            {0, 'i', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
+          },
+          del = {},
+          buf_del = {},
+        }, t.results)
       end)
-      assert.are.same({
-        global = {},
-        buf = {
-          {0, 'i', '<C-g>', [[3 + 3]], {expr = true, noremap = true}},
-        },
-        del = {},
-        buf_del = {},
-      }, t.results)
+    end)
+
+    describe('when error occurred', function()
+
+      it('catches an error and `buffer` is still false', function()
+        assert.has.errors(function()
+          t.m.add_buffer_maps(function()
+            error'this is an error'
+          end)
+        end)
+        assert.are.same(false, t.m.buffer)
+      end)
     end)
   end)
 

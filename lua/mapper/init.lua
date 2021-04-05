@@ -208,8 +208,11 @@ function Map:__add_buffer_maps()
       f = {f, 'function'},
     }
     this.buffer = true
-    f()
+    local ok, err = pcall(f)
     this.buffer = false
+    if not ok then
+      error(err)
+    end
   end
 end
 
