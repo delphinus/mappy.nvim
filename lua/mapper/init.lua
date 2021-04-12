@@ -183,10 +183,15 @@ function Map:__clean_up(mode, lhs, opts)
   for _, m in ipairs(real_modes) do
     local mapped = self.mapped[opts.buffer and 'buffer' or 'global']
     if mapped[m][lhs] then
+      local ok, err
       if opts.buffer then
-        self.map_setter.buf_del(0, m, lhs)
+        ok, err = pcall(self.map_setter.buf_del, 0, m, lhs)
       else
-        self.map_setter.del(m, lhs)
+        ok, err = pcall(self.map_setter.del, m, lhs)
+      end
+      -- raise the error when it is not E31: No such mapping.
+      if not ok and not err:match'E31: ' then
+        error(err)
       end
     end
     mapped[m][lhs] = opts.value
