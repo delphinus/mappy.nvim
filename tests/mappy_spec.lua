@@ -1,4 +1,4 @@
-local mapper = require'mapper'
+local mappy = require'mappy'
 
 local Tester = {}
 
@@ -12,7 +12,7 @@ function Tester.new(map_setter)
     del = function(...) self:save({del = true}, ...) end,
     buf_del = function(...) self:save({del = true, buf = true}, ...) end,
   }
-  self.m = mapper.Map.new(map_setter)
+  self.m = mappy.Mappy.new(map_setter)
   return self
 end
 
@@ -30,7 +30,7 @@ function Tester:save(opts, ...)
   table.insert(results, r)
 end
 
-describe('mapper', function()
+describe('mappy', function()
 
   local t
   before_each(function() t = Tester.new() end)

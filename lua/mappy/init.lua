@@ -1,10 +1,10 @@
-local nvim_map_setter = require'mapper.nvim_map_setter'
+local nvim_map_setter = require'mappy.nvim_map_setter'
 
-local Map = {}
+local Mappy = {}
 
-function Map.new(map_setter)
+function Mappy.new(map_setter)
   local self = {
-    Map = Map,
+    Mappy = Mappy,
     buffer = false,
     funcs = {},
     funcs_var_name = ('__map_funcs_%d__'):format(vim.loop.now()),
@@ -58,12 +58,12 @@ function Map.new(map_setter)
     },
   }
   _G[self.funcs_var_name]= self.funcs
-  return setmetatable(self, {__index = Map._index})
+  return setmetatable(self, {__index = Mappy._index})
 end
 
-function Map:_index(key)
-  if self.Map[key] then
-    return self.Map[key]
+function Mappy:_index(key)
+  if self.Mappy[key] then
+    return self.Mappy[key]
   elseif key == 'bind' then
     return self:__bind(true)
   elseif key == 'rbind' then
@@ -78,7 +78,7 @@ function Map:_index(key)
  error('unknown method: '..key)
 end
 
-function Map:__bind(noremap)
+function Mappy:__bind(noremap)
   local this = self
   return function(...)
     local opts = {}
@@ -126,7 +126,7 @@ function Map:__bind(noremap)
   end
 end
 
-function Map:__map(mode, noremap)
+function Mappy:__map(mode, noremap)
   local this = self
   return function(...)
     local opts_list, lhs, rhs
@@ -159,7 +159,7 @@ function Map:__map(mode, noremap)
   end
 end
 
-function Map:__unmap(mode)
+function Mappy:__unmap(mode)
   local this = self
   return function(...)
     local opts_list, lhs
@@ -178,7 +178,7 @@ function Map:__unmap(mode)
   end
 end
 
-function Map:__clean_up(mode, lhs, opts)
+function Mappy:__clean_up(mode, lhs, opts)
   local real_modes = self.special_mode[mode] or {mode}
   for _, m in ipairs(real_modes) do
     local mapped = self.mapped[opts.buffer and 'buffer' or 'global']
@@ -198,7 +198,7 @@ function Map:__clean_up(mode, lhs, opts)
   end
 end
 
-function Map:__rhs(candidate)
+function Mappy:__rhs(candidate)
   if type(candidate) == 'string' then
     return candidate
   end
@@ -206,7 +206,7 @@ function Map:__rhs(candidate)
   return ('<Cmd>lua %s[%d]()<CR>'):format(self.funcs_var_name, #self.funcs)
 end
 
-function Map:__add_buffer_maps()
+function Mappy:__add_buffer_maps()
   local this = self
   return function(f)
     vim.validate{
@@ -221,4 +221,4 @@ function Map:__add_buffer_maps()
   end
 end
 
-return Map.new()
+return Mappy.new()
